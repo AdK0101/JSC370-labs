@@ -2003,6 +2003,122 @@ need the `mgcv` package and `gam()` function to do this.
   regression spline on wind speed). Summarize and plot the results from
   the models and interpret which model is the best fit and why.
 
+``` r
+med_lazy <- lazy_dt(med_met, immutable = FALSE)
+med_lazy.filtered <- med_lazy |>
+  filter(atm.press >= 1000 & atm.press <= 1020) |>
+  collect()
+
+ggplot(med_lazy.filtered, aes(x=atm.press, y=temp)) + 
+  geom_point() + 
+  geom_smooth(method='lm', color = "red") + 
+  geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), color = "blue") +
+  labs(x="Atmospheric Pressure",
+       y="Temperature", 
+       title="Relationship of Atmospheric Pressure and Temperature") 
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+# Note: the wind speed is a typo. Should be atmosphere pressure in the model; see Piazza.
+lm.mod <- lm(temp ~ atm.press, data = med_lazy.filtered)
+summary(lm.mod)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = temp ~ atm.press, data = med_lazy.filtered)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -14.3696  -2.6173   0.1844   2.3012  11.6394 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 1175.93898   58.53149   20.09   <2e-16 ***
+    ## atm.press     -1.14162    0.05785  -19.73   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 3.762 on 1083 degrees of freedom
+    ## Multiple R-squared:  0.2645, Adjusted R-squared:  0.2638 
+    ## F-statistic: 389.4 on 1 and 1083 DF,  p-value: < 2.2e-16
+
+``` r
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Association between Atmospheric Pressure and Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") 
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+spline.mod <- gam(temp ~ s(atm.press, bs = "cr"), data = med_lazy.filtered)
+summary(spline.mod)
+```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## temp ~ s(atm.press, bs = "cr")
+    ## 
+    ## Parametric coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  20.9378     0.1117   187.5   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##               edf Ref.df     F p-value    
+    ## s(atm.press) 8.67  8.968 51.52  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## R-sq.(adj) =  0.297   Deviance explained = 30.2%
+    ## GCV = 13.647  Scale est. = 13.526    n = 1085
+
+``` r
+med_lazy.filtered$predicted <- predict(spline.mod, newdata = med_lazy.filtered)
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_line(aes(y = predicted), color = "blue", size = 1) +
+  labs(title = "Cubic Regression Spline Model - Atm. Pressure Against Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") +
+  theme_minimal()
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+We first make two observations. First, the adjusted $R^2$ value for the
+spline model is higher than that of the linear model: 0.297 against
+0.2645 respectively. However, the difference is minimal. The second
+observation is that for the spline model, it appears that the curve is
+highly influenced by certain data points. See the tails, for example. In
+other words, a risk of this model is that it is capturing noise, instead
+of the actual trend. In other words, it is not out of the realm of
+possibility, that the line is highly overfitted to the data.
+
+Given these two observations, we would probably choose the linear
+regression model purely because its $R^2$ is not that much smaller, and
+it does not appear to be overfitting to the data.
+
 ## Deliverables
 
 - .Rmd file (this file)

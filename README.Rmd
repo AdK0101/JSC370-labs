@@ -277,6 +277,7 @@ leaflet() %>%
 webshot::install_phantomjs()
 
 ```
+Note that we display a still image of the map, since markdown cannot support showing the actual Leaflet map.
 
 Knit the doc and save it on GitHub.
 
@@ -316,7 +317,63 @@ Let's practice running regression models with smooth functions on X. We need the
 
 ```{r}
 
+med_lazy <- lazy_dt(med_met, immutable = FALSE)
+med_lazy.filtered <- med_lazy |>
+  filter(atm.press >= 1000 & atm.press <= 1020) |>
+  collect()
+
+ggplot(med_lazy.filtered, aes(x=atm.press, y=temp)) + 
+  geom_point() + 
+  geom_smooth(method='lm', color = "red") + 
+  geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), color = "blue") +
+  labs(x="Atmospheric Pressure",
+       y="Temperature", 
+       title="Relationship of Atmospheric Pressure and Temperature") 
+
+
 ```
+
+```{r}
+
+# Note: the wind speed is a typo. Should be atmosphere pressure in the model; see Piazza.
+lm.mod <- lm(temp ~ atm.press, data = med_lazy.filtered)
+summary(lm.mod)
+
+```
+```{r}
+
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Association between Atmospheric Pressure and Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") 
+
+```
+
+```{r}
+
+spline.mod <- gam(temp ~ s(atm.press, bs = "cr"), data = med_lazy.filtered)
+summary(spline.mod)
+```
+
+```{r}
+
+med_lazy.filtered$predicted <- predict(spline.mod, newdata = med_lazy.filtered)
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_line(aes(y = predicted), color = "blue", size = 1) +
+  labs(title = "Cubic Regression Spline Model - Atm. Pressure Against Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") +
+  theme_minimal()
+
+```
+
+We first make two observations. First, the adjusted $R^2$ value for the spline model is higher than that of the linear model: 0.297 against 0.2645 respectively. However, the difference is minimal. The second observation is that for the spline model, it appears that the curve is highly influenced by certain data points. See the tails, for example. In other words, a risk of this model is that it is capturing noise, instead of the actual trend. So, it is not out of the realm of possibility, that the line is highly overfitted to the data. 
+
+Given these two observations, we would probably choose the linear regression model purely because its $R^2$ is not that much smaller, and it does not appear to be overfitting to the data. 
+
 
 ## Deliverables
 
