@@ -357,7 +357,7 @@ spline.mod <- gam(temp ~ s(atm.press, bs = "cr"), data = med_lazy.filtered)
 summary(spline.mod)
 ```
 
-```{r}
+```{r, warning=FALSE}
 
 med_lazy.filtered$predicted <- predict(spline.mod, newdata = med_lazy.filtered)
 ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +

@@ -522,6 +522,9 @@ webshot::install_phantomjs()
 
     ## It seems that the version of `phantomjs` installed is greater than or equal to the requested version.To install the requested version or downgrade to another version, use `force = TRUE`.
 
+Note that we display a still image of the map, since markdown cannot
+support showing the actual Leaflet map.
+
 Knit the doc and save it on GitHub.
 
 ## Question 4: Summary Table with `kableExtra`
@@ -2098,12 +2101,6 @@ ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
   theme_minimal()
 ```
 
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
 ![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 We first make two observations. First, the adjusted $R^2$ value for the
@@ -2112,8 +2109,8 @@ spline model is higher than that of the linear model: 0.297 against
 observation is that for the spline model, it appears that the curve is
 highly influenced by certain data points. See the tails, for example. In
 other words, a risk of this model is that it is capturing noise, instead
-of the actual trend. In other words, it is not out of the realm of
-possibility, that the line is highly overfitted to the data.
+of the actual trend. So, it is not out of the realm of possibility, that
+the line is highly overfitted to the data.
 
 Given these two observations, we would probably choose the linear
 regression model purely because its $R^2$ is not that much smaller, and
