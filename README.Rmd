@@ -178,12 +178,6 @@ Next identify the stations have these median values.
 
 ```{r}
 
-colnames(met_dt)
-
-```
-
-```{r}
-
 med_met <- met_dt[, .(
   temp = median(temp, na.rm = TRUE),
   atm.press = median(atm.press, na.rm = TRUE),
@@ -224,6 +218,16 @@ Now let's find the weather stations by state with closest temperature and wind s
 
 ```{r}
 
+state_weather <- met_dt[, .(
+  state_temp = median(temp, na.rm = TRUE),
+  state_wind.sp = median(wind.sp, na.rm = TRUE)
+), by = c("STATE")]
+
+euclidean <- merge(state_weather, met_dt, by = "STATE")
+euclidean[, distance:= sqrt((temp-state_temp)^2 + (wind.sp-state_wind.sp)^2)]
+euclidean <- euclidean[!is.na(distance)]
+state_reps <- euclidean[, .(min_distance = min(distance), USAFID = USAFID[which.min(distance)]), by = c("STATE")]
+state_reps[, .(STATE, USAFID)]
 ```
 
 Knit the doc and save it on GitHub.
@@ -232,8 +236,8 @@ Knit the doc and save it on GitHub.
 
 For each state, identify which station is closest to the geographic mid-point (median) of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all ~100 points in the same figure, applying different colors for the geographic median and the temperature and wind speed median.
 
-```{r}
 
+```{r}
 
 
 

@@ -247,22 +247,6 @@ med_ws
 Next identify the stations have these median values.
 
 ``` r
-colnames(met_dt)
-```
-
-    ##  [1] "USAFID"            "WBAN"              "year"             
-    ##  [4] "month"             "day"               "hour"             
-    ##  [7] "min"               "lat"               "lon"              
-    ## [10] "elev"              "wind.dir"          "wind.dir.qc"      
-    ## [13] "wind.type.code"    "wind.sp"           "wind.sp.qc"       
-    ## [16] "ceiling.ht"        "ceiling.ht.qc"     "ceiling.ht.method"
-    ## [19] "sky.cond"          "vis.dist"          "vis.dist.qc"      
-    ## [22] "vis.var"           "vis.var.qc"        "temp"             
-    ## [25] "temp.qc"           "dew.point"         "dew.point.qc"     
-    ## [28] "atm.press"         "atm.press.qc"      "CTRY"             
-    ## [31] "STATE"             "LAT"               "LON"
-
-``` r
 med_met <- met_dt[, .(
   temp = median(temp, na.rm = TRUE),
   atm.press = median(atm.press, na.rm = TRUE),
@@ -423,6 +407,70 @@ forget to add `README.md` to the tree, the first time you render it.
 
 Now let’s find the weather stations by state with closest temperature
 and wind speed based on the euclidean distance from these medians.
+
+``` r
+state_weather <- met_dt[, .(
+  state_temp = median(temp, na.rm = TRUE),
+  state_wind.sp = median(wind.sp, na.rm = TRUE)
+), by = c("STATE")]
+
+euclidean <- merge(state_weather, met_dt, by = "STATE")
+euclidean[, distance:= sqrt((temp-state_temp)^2 + (wind.sp-state_wind.sp)^2)]
+euclidean <- euclidean[!is.na(distance)]
+state_reps <- euclidean[, .(min_distance = min(distance), USAFID = USAFID[which.min(distance)]), by = c("STATE")]
+state_reps[, .(STATE, USAFID)]
+```
+
+    ##     STATE USAFID
+    ##  1:    AL 720265
+    ##  2:    AR 720377
+    ##  3:    AZ 722720
+    ##  4:    CA 720267
+    ##  5:    CO 720531
+    ##  6:    CT 725027
+    ##  7:    DE 724088
+    ##  8:    FL 720383
+    ##  9:    GA 720257
+    ## 10:    IA 720293
+    ## 11:    ID 720322
+    ## 12:    IL 720137
+    ## 13:    IN 720266
+    ## 14:    KS 720422
+    ## 15:    KY 720447
+    ## 16:    LA 720467
+    ## 17:    MA 725059
+    ## 18:    MD 720384
+    ## 19:    ME 726060
+    ## 20:    MI 720198
+    ## 21:    MN 720258
+    ## 22:    MO 720869
+    ## 23:    MS 720708
+    ## 24:    MT 726676
+    ## 25:    NC 720274
+    ## 26:    ND 720491
+    ## 27:    NE 720405
+    ## 28:    NH 726050
+    ## 29:    NJ 720581
+    ## 30:    NM 722695
+    ## 31:    NV 720549
+    ## 32:    NY 722098
+    ## 33:    OH 720397
+    ## 34:    OK 720342
+    ## 35:    OR 720202
+    ## 36:    PA 720304
+    ## 37:    RI 722151
+    ## 38:    SC 720120
+    ## 39:    SD 726510
+    ## 40:    TN 720974
+    ## 41:    TX 720261
+    ## 42:    UT 720567
+    ## 43:    VA 720501
+    ## 44:    VT 720493
+    ## 45:    WA 720254
+    ## 46:    WI 720343
+    ## 47:    WV 724120
+    ## 48:    WY 720345
+    ##     STATE USAFID
 
 Knit the doc and save it on GitHub.
 
