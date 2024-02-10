@@ -178,6 +178,12 @@ Next identify the stations have these median values.
 
 ```{r}
 
+colnames(met_dt)
+
+```
+
+```{r}
+
 med_met <- met_dt[, .(
   temp = median(temp, na.rm = TRUE),
   atm.press = median(atm.press, na.rm = TRUE),
@@ -207,6 +213,9 @@ unique(all_measures)
 
 ```
 
+As as can see above, the values all coincide for the station with USAFID: 723119. 
+
+
 Knit the document, commit your changes, and save it on GitHub. Don't forget to add `README.md` to the tree, the first time you render it.
 
 ## Question 2: Identifying Representative Stations per State
@@ -214,7 +223,6 @@ Knit the document, commit your changes, and save it on GitHub. Don't forget to a
 Now let's find the weather stations by state with closest temperature and wind speed based on the euclidean distance from these medians. 
 
 ```{r}
-
 
 ```
 
@@ -225,6 +233,9 @@ Knit the doc and save it on GitHub.
 For each state, identify which station is closest to the geographic mid-point (median) of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all ~100 points in the same figure, applying different colors for the geographic median and the temperature and wind speed median.
 
 ```{r}
+
+
+
 
 ```
 

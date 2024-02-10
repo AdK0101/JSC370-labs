@@ -247,6 +247,22 @@ med_ws
 Next identify the stations have these median values.
 
 ``` r
+colnames(met_dt)
+```
+
+    ##  [1] "USAFID"            "WBAN"              "year"             
+    ##  [4] "month"             "day"               "hour"             
+    ##  [7] "min"               "lat"               "lon"              
+    ## [10] "elev"              "wind.dir"          "wind.dir.qc"      
+    ## [13] "wind.type.code"    "wind.sp"           "wind.sp.qc"       
+    ## [16] "ceiling.ht"        "ceiling.ht.qc"     "ceiling.ht.method"
+    ## [19] "sky.cond"          "vis.dist"          "vis.dist.qc"      
+    ## [22] "vis.var"           "vis.var.qc"        "temp"             
+    ## [25] "temp.qc"           "dew.point"         "dew.point.qc"     
+    ## [28] "atm.press"         "atm.press.qc"      "CTRY"             
+    ## [31] "STATE"             "LAT"               "LON"
+
+``` r
 med_met <- met_dt[, .(
   temp = median(temp, na.rm = TRUE),
   atm.press = median(atm.press, na.rm = TRUE),
@@ -396,6 +412,9 @@ unique(all_measures)
 
     ##    USAFID STATE temp atm.press wind.sp temp_d ws_d atp_d
     ## 1: 723119    SC 21.7    1011.7     3.1      0    0     0
+
+As as can see above, the values all coincide for the station with
+USAFID: 723119.
 
 Knit the document, commit your changes, and save it on GitHub. Don’t
 forget to add `README.md` to the tree, the first time you render it.
