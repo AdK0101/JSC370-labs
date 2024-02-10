@@ -414,7 +414,7 @@ state_weather <- met_dt[, .(
   state_wind.sp = median(wind.sp, na.rm = TRUE)
 ), by = c("STATE")]
 
-euclidean <- merge(state_weather, met_dt, by = "STATE")
+euclidean <- merge(state_weather, med_met, by = "STATE")
 euclidean[, distance:= sqrt((temp-state_temp)^2 + (wind.sp-state_wind.sp)^2)]
 euclidean <- euclidean[!is.na(distance)]
 state_reps <- euclidean[, .(min_distance = min(distance), USAFID = USAFID[which.min(distance)]), by = c("STATE")]
@@ -423,53 +423,53 @@ state_reps[, .(STATE, USAFID)]
 
     ##     STATE USAFID
     ##  1:    AL 720265
-    ##  2:    AR 720377
-    ##  3:    AZ 722720
-    ##  4:    CA 720267
-    ##  5:    CO 720531
-    ##  6:    CT 725027
-    ##  7:    DE 724088
-    ##  8:    FL 720383
+    ##  2:    AR 722188
+    ##  3:    AZ 722728
+    ##  4:    CA 722950
+    ##  5:    CO 724695
+    ##  6:    CT 725040
+    ##  7:    DE 724093
+    ##  8:    FL 722024
     ##  9:    GA 720257
-    ## 10:    IA 720293
-    ## 11:    ID 720322
-    ## 12:    IL 720137
-    ## 13:    IN 720266
-    ## 14:    KS 720422
-    ## 15:    KY 720447
-    ## 16:    LA 720467
+    ## 10:    IA 720309
+    ## 11:    ID 725867
+    ## 12:    IL 744666
+    ## 13:    IN 744660
+    ## 14:    KS 724655
+    ## 15:    KY 724235
+    ## 16:    LA 720587
     ## 17:    MA 725059
-    ## 18:    MD 720384
+    ## 18:    MD 725514
     ## 19:    ME 726060
-    ## 20:    MI 720198
-    ## 21:    MN 720258
-    ## 22:    MO 720869
-    ## 23:    MS 720708
-    ## 24:    MT 726676
-    ## 25:    NC 720274
-    ## 26:    ND 720491
-    ## 27:    NE 720405
-    ## 28:    NH 726050
+    ## 20:    MI 725395
+    ## 21:    MN 720283
+    ## 22:    MO 723300
+    ## 23:    MS 722354
+    ## 24:    MT 726770
+    ## 25:    NC 720282
+    ## 26:    ND 720853
+    ## 27:    NE 725525
+    ## 28:    NH 726165
     ## 29:    NJ 720581
-    ## 30:    NM 722695
-    ## 31:    NV 720549
-    ## 32:    NY 722098
-    ## 33:    OH 720397
-    ## 34:    OK 720342
-    ## 35:    OR 720202
-    ## 36:    PA 720304
-    ## 37:    RI 722151
-    ## 38:    SC 720120
-    ## 39:    SD 726510
+    ## 30:    NM 722683
+    ## 31:    NV 724885
+    ## 32:    NY 725190
+    ## 33:    OH 720414
+    ## 34:    OK 722164
+    ## 35:    OR 725976
+    ## 36:    PA 720324
+    ## 37:    RI 725054
+    ## 38:    SC 720602
+    ## 39:    SD 726518
     ## 40:    TN 720974
-    ## 41:    TX 720261
-    ## 42:    UT 720567
-    ## 43:    VA 720501
+    ## 41:    TX 722448
+    ## 42:    UT 725724
+    ## 43:    VA 724036
     ## 44:    VT 720493
-    ## 45:    WA 720254
-    ## 46:    WI 720343
-    ## 47:    WV 724120
-    ## 48:    WY 720345
+    ## 45:    WA 727924
+    ## 46:    WI 726415
+    ## 47:    WV 724177
+    ## 48:    WY 720521
     ##     STATE USAFID
 
 Knit the doc and save it on GitHub.
@@ -522,10 +522,6 @@ webshot::install_phantomjs()
 
     ## It seems that the version of `phantomjs` installed is greater than or equal to the requested version.To install the requested version or downgrade to another version, use `force = TRUE`.
 
-``` r
-#install.packages("webshot2")
-```
-
 Knit the doc and save it on GitHub.
 
 ## Question 4: Summary Table with `kableExtra`
@@ -539,6 +535,1455 @@ Use the following breakdown for elevation:
 - Low: elev \< 93
 - Mid: elev \>= 93 and elev \< 401
 - High: elev \>= 401
+
+``` r
+met_dt$elev.cat <- ifelse(met_dt$elev < 93, "low", ifelse(met_dt$elev >= 93 & met_dt$elev < 401, "mid", ifelse(met_dt$elev >= 401, "high", NA)))
+
+summary_table <- met_dt[, .(
+  avg_temp = mean(temp, na.rm = TRUE),
+  count = .N
+), by = c("STATE", "elev.cat")]
+
+kable(summary_table, format = "html", caption = "Avg Temperature by State and Elevation Category")
+```
+
+<table>
+<caption>
+Avg Temperature by State and Elevation Category
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+STATE
+</th>
+<th style="text-align:left;">
+elev.cat
+</th>
+<th style="text-align:right;">
+avg_temp
+</th>
+<th style="text-align:right;">
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+CA
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+18.148808
+</td>
+<td style="text-align:right;">
+34873
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TX
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+28.080212
+</td>
+<td style="text-align:right;">
+121694
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MI
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+18.544315
+</td>
+<td style="text-align:right;">
+109821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SC
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+23.684074
+</td>
+<td style="text-align:right;">
+46499
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IL
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+22.117068
+</td>
+<td style="text-align:right;">
+79152
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TX
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+26.500393
+</td>
+<td style="text-align:right;">
+67075
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MO
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+23.776523
+</td>
+<td style="text-align:right;">
+37283
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AR
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+24.405779
+</td>
+<td style="text-align:right;">
+16596
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AR
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+25.586981
+</td>
+<td style="text-align:right;">
+13050
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OR
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+15.203183
+</td>
+<td style="text-align:right;">
+13332
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+15.251930
+</td>
+<td style="text-align:right;">
+17491
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+24.805291
+</td>
+<td style="text-align:right;">
+41197
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MN
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+21.155231
+</td>
+<td style="text-align:right;">
+126490
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+23.238409
+</td>
+<td style="text-align:right;">
+58952
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AL
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+23.797753
+</td>
+<td style="text-align:right;">
+28602
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IN
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+20.127309
+</td>
+<td style="text-align:right;">
+42207
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TX
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+28.744620
+</td>
+<td style="text-align:right;">
+56699
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NC
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+22.829453
+</td>
+<td style="text-align:right;">
+62955
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NC
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+21.210730
+</td>
+<td style="text-align:right;">
+51801
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+21.348262
+</td>
+<td style="text-align:right;">
+38279
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+22.262278
+</td>
+<td style="text-align:right;">
+96728
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+20.341855
+</td>
+<td style="text-align:right;">
+4249
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NE
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+23.485978
+</td>
+<td style="text-align:right;">
+17211
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+16.415667
+</td>
+<td style="text-align:right;">
+25107
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+19.405269
+</td>
+<td style="text-align:right;">
+28202
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WI
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+19.565627
+</td>
+<td style="text-align:right;">
+70589
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WV
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+17.492150
+</td>
+<td style="text-align:right;">
+7353
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+18.770705
+</td>
+<td style="text-align:right;">
+27360
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MD
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+20.622545
+</td>
+<td style="text-align:right;">
+6535
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AZ
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+23.892609
+</td>
+<td style="text-align:right;">
+26864
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OK
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+24.000040
+</td>
+<td style="text-align:right;">
+20544
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WY
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+13.748173
+</td>
+<td style="text-align:right;">
+33660
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+27.618194
+</td>
+<td style="text-align:right;">
+47046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KY
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+21.361029
+</td>
+<td style="text-align:right;">
+30259
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OK
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+25.076760
+</td>
+<td style="text-align:right;">
+57603
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AL
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+25.071063
+</td>
+<td style="text-align:right;">
+14590
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OR
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+16.391003
+</td>
+<td style="text-align:right;">
+4857
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MN
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+19.931963
+</td>
+<td style="text-align:right;">
+38908
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FL
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+26.614842
+</td>
+<td style="text-align:right;">
+94317
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MD
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+21.254624
+</td>
+<td style="text-align:right;">
+18056
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+17.805419
+</td>
+<td style="text-align:right;">
+12745
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OH
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+19.437742
+</td>
+<td style="text-align:right;">
+48146
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NE
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+21.048920
+</td>
+<td style="text-align:right;">
+42912
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+18.255077
+</td>
+<td style="text-align:right;">
+69638
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NJ
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+19.965634
+</td>
+<td style="text-align:right;">
+15417
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NM
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+22.448418
+</td>
+<td style="text-align:right;">
+37384
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KS
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+22.098776
+</td>
+<td style="text-align:right;">
+24679
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KS
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+24.161955
+</td>
+<td style="text-align:right;">
+15821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MO
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+23.300286
+</td>
+<td style="text-align:right;">
+2114
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MO
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+25.796537
+</td>
+<td style="text-align:right;">
+2089
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ND
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+21.792359
+</td>
+<td style="text-align:right;">
+13684
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VT
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+16.899714
+</td>
+<td style="text-align:right;">
+12854
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VT
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+NaN
+</td>
+<td style="text-align:right;">
+969
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CO
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+15.184075
+</td>
+<td style="text-align:right;">
+75300
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MS
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+24.666824
+</td>
+<td style="text-align:right;">
+17236
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CT
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+18.784333
+</td>
+<td style="text-align:right;">
+4193
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NV
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.849170
+</td>
+<td style="text-align:right;">
+21077
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UT
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+19.754720
+</td>
+<td style="text-align:right;">
+16188
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SC
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+22.389955
+</td>
+<td style="text-align:right;">
+23316
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SD
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.639922
+</td>
+<td style="text-align:right;">
+18710
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OR
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+16.711553
+</td>
+<td style="text-align:right;">
+14554
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AZ
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+30.380567
+</td>
+<td style="text-align:right;">
+6796
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MS
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+26.342852
+</td>
+<td style="text-align:right;">
+21619
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ND
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.415848
+</td>
+<td style="text-align:right;">
+34982
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VA
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+17.954522
+</td>
+<td style="text-align:right;">
+15807
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WI
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+17.994615
+</td>
+<td style="text-align:right;">
+16582
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TN
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+22.896423
+</td>
+<td style="text-align:right;">
+17963
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NY
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+18.756211
+</td>
+<td style="text-align:right;">
+13327
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IL
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.843173
+</td>
+<td style="text-align:right;">
+2041
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RI
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+17.881157
+</td>
+<td style="text-align:right;">
+3796
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+20.499982
+</td>
+<td style="text-align:right;">
+28009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NC
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+18.046833
+</td>
+<td style="text-align:right;">
+7998
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+26.094135
+</td>
+<td style="text-align:right;">
+5267
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MA
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+17.444767
+</td>
+<td style="text-align:right;">
+21426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MD
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.648332
+</td>
+<td style="text-align:right;">
+948
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TN
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+19.457179
+</td>
+<td style="text-align:right;">
+2040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TN
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+25.813619
+</td>
+<td style="text-align:right;">
+257
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AR
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+23.723926
+</td>
+<td style="text-align:right;">
+3019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NJ
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+19.319633
+</td>
+<td style="text-align:right;">
+1948
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DE
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+21.406110
+</td>
+<td style="text-align:right;">
+3109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WV
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+19.310790
+</td>
+<td style="text-align:right;">
+7297
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KY
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+20.178196
+</td>
+<td style="text-align:right;">
+1168
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NY
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+18.314891
+</td>
+<td style="text-align:right;">
+18652
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CT
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+19.372486
+</td>
+<td style="text-align:right;">
+7389
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RI
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+17.465887
+</td>
+<td style="text-align:right;">
+1187
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MA
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+17.590583
+</td>
+<td style="text-align:right;">
+6525
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PA
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+17.286934
+</td>
+<td style="text-align:right;">
+11224
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NY
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+15.887585
+</td>
+<td style="text-align:right;">
+7001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MI
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+17.977982
+</td>
+<td style="text-align:right;">
+1124
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IA
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+21.992787
+</td>
+<td style="text-align:right;">
+6116
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NH
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+16.777308
+</td>
+<td style="text-align:right;">
+12640
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NH
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+17.788436
+</td>
+<td style="text-align:right;">
+3070
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ME
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+15.231588
+</td>
+<td style="text-align:right;">
+8610
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ME
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+15.439297
+</td>
+<td style="text-align:right;">
+11364
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NH
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+7.243417
+</td>
+<td style="text-align:right;">
+713
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ME
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+15.329681
+</td>
+<td style="text-align:right;">
+752
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SD
+</td>
+<td style="text-align:left;">
+mid
+</td>
+<td style="text-align:right;">
+22.794950
+</td>
+<td style="text-align:right;">
+4689
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MN
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+22.662752
+</td>
+<td style="text-align:right;">
+2100
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MT
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+16.293015
+</td>
+<td style="text-align:right;">
+20839
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WA
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+16.810354
+</td>
+<td style="text-align:right;">
+6164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AZ
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+29.285853
+</td>
+<td style="text-align:right;">
+753
+</td>
+</tr>
+</tbody>
+</table>
 
 Knit the document, commit your changes, and push them to GitHub.
 

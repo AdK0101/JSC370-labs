@@ -223,7 +223,7 @@ state_weather <- met_dt[, .(
   state_wind.sp = median(wind.sp, na.rm = TRUE)
 ), by = c("STATE")]
 
-euclidean <- merge(state_weather, met_dt, by = "STATE")
+euclidean <- merge(state_weather, med_met, by = "STATE")
 euclidean[, distance:= sqrt((temp-state_temp)^2 + (wind.sp-state_wind.sp)^2)]
 euclidean <- euclidean[!is.na(distance)]
 state_reps <- euclidean[, .(min_distance = min(distance), USAFID = USAFID[which.min(distance)]), by = c("STATE")]
@@ -275,7 +275,6 @@ leaflet() %>%
 
 #install.packages("webshot")
 webshot::install_phantomjs()
-#install.packages("webshot2")
 
 ```
 
@@ -292,7 +291,14 @@ Use the following breakdown for elevation:
 - High: elev >= 401
 
 ```{r}
+met_dt$elev.cat <- ifelse(met_dt$elev < 93, "low", ifelse(met_dt$elev >= 93 & met_dt$elev < 401, "mid", ifelse(met_dt$elev >= 401, "high", NA)))
 
+summary_table <- met_dt[, .(
+  avg_temp = mean(temp, na.rm = TRUE),
+  count = .N
+), by = c("STATE", "elev.cat")]
+
+kable(summary_table, format = "html", caption = "Avg Temperature by State and Elevation Category")
 
 ```
 
@@ -309,7 +315,6 @@ Let's practice running regression models with smooth functions on X. We need the
 - fit both a linear model and a spline model (use `gam()` with a cubic regression spline on wind speed). Summarize and plot the results from the models and interpret which model is the best fit and why.
 
 ```{r}
-
 
 ```
 
