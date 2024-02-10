@@ -240,6 +240,42 @@ For each state, identify which station is closest to the geographic mid-point (m
 ```{r}
 
 
+med_stat <- met_dt[, .(
+  mlon = median(lon, na.rm = TRUE),
+  mlat = median(lat, na.rm = TRUE)
+), by = c("STATE")]
+
+med_stat.info <- merge(met_dt[, c("USAFID", "STATE", "lat", "lon")], med_stat, by.x = "STATE", by.y = "STATE")
+med_stat.info[, mid_dist:=sqrt((lon-mlon)^2+(lat-mlat)^2)]
+med_stat <- med_stat.info[ , .SD[which.min(mid_dist)], by = c("STATE")]
+
+met_dt.filtered <- met_dt[met_dt$USAFID %in% med_stat$USAFID | met_dt$USAFID %in% state_reps$USAFID]
+met_dt.filtered$state_rep <- ifelse(met_dt.filtered$USAFID %in% state_reps$USAFID, 1, 0)
+met_dt.filtered$median_stat <- ifelse(met_dt.filtered$USAFID %in% med_stat$USAFID, 1, 0)
+
+met_dt.filtered <- met_dt.filtered[, .(
+  lon = mean(lon, na.rm = TRUE),
+  lat = mean(lat, na.rm = TRUE),
+  state_rep = first(state_rep),
+  median_stat = first(median_stat)
+), by = c("USAFID")]
+
+leaflet() %>%
+  addTiles() %>%
+  addCircles(data = met_dt.filtered, 
+                   lat = ~lat, 
+                   lng = ~lon, 
+                   radius = 5, 
+                   color = ~ifelse(state_rep == 1, "red", 
+                                   ifelse(median_stat == 1, "blue", "green")))
+
+```
+
+```{r}
+
+#install.packages("webshot")
+webshot::install_phantomjs()
+#install.packages("webshot2")
 
 ```
 
@@ -257,6 +293,7 @@ Use the following breakdown for elevation:
 
 ```{r}
 
+
 ```
 
 
@@ -272,6 +309,7 @@ Let's practice running regression models with smooth functions on X. We need the
 - fit both a linear model and a spline model (use `gam()` with a cubic regression spline on wind speed). Summarize and plot the results from the models and interpret which model is the best fit and why.
 
 ```{r}
+
 
 ```
 

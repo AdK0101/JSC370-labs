@@ -482,6 +482,50 @@ identified in the previous question, use `leaflet()` to visualize all
 ~100 points in the same figure, applying different colors for the
 geographic median and the temperature and wind speed median.
 
+``` r
+med_stat <- met_dt[, .(
+  mlon = median(lon, na.rm = TRUE),
+  mlat = median(lat, na.rm = TRUE)
+), by = c("STATE")]
+
+med_stat.info <- merge(met_dt[, c("USAFID", "STATE", "lat", "lon")], med_stat, by.x = "STATE", by.y = "STATE")
+med_stat.info[, mid_dist:=sqrt((lon-mlon)^2+(lat-mlat)^2)]
+med_stat <- med_stat.info[ , .SD[which.min(mid_dist)], by = c("STATE")]
+
+met_dt.filtered <- met_dt[met_dt$USAFID %in% med_stat$USAFID | met_dt$USAFID %in% state_reps$USAFID]
+met_dt.filtered$state_rep <- ifelse(met_dt.filtered$USAFID %in% state_reps$USAFID, 1, 0)
+met_dt.filtered$median_stat <- ifelse(met_dt.filtered$USAFID %in% med_stat$USAFID, 1, 0)
+
+met_dt.filtered <- met_dt.filtered[, .(
+  lon = mean(lon, na.rm = TRUE),
+  lat = mean(lat, na.rm = TRUE),
+  state_rep = first(state_rep),
+  median_stat = first(median_stat)
+), by = c("USAFID")]
+
+leaflet() %>%
+  addTiles() %>%
+  addCircles(data = met_dt.filtered, 
+                   lat = ~lat, 
+                   lng = ~lon, 
+                   radius = 5, 
+                   color = ~ifelse(state_rep == 1, "red", 
+                                   ifelse(median_stat == 1, "blue", "green")))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+#install.packages("webshot")
+webshot::install_phantomjs()
+```
+
+    ## It seems that the version of `phantomjs` installed is greater than or equal to the requested version.To install the requested version or downgrade to another version, use `force = TRUE`.
+
+``` r
+#install.packages("webshot2")
+```
+
 Knit the doc and save it on GitHub.
 
 ## Question 4: Summary Table with `kableExtra`
