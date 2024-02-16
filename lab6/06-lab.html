@@ -388,6 +388,7 @@ counts &lt;- xml2::xml_find_first(website, &quot;//span[@class=&#39;value&#39;]&
 counts &lt;- as.character(counts)
 # Extracting the data using regex
 stringr::str_extract(counts, &quot;[0-9,]+&quot;)</code></pre>
+<pre><code>## [1] &quot;218,845&quot;</code></pre>
 <ul>
 <li>How many sars-cov-2 papers are there?</li>
 </ul>
@@ -483,12 +484,196 @@ departments</h2>
 <li>… Institute of …</li>
 </ol>
 <p>Write a regular expression that captures all such instances</p>
-<pre class="r"><code>institution &lt;- str_extract_all(
+<pre class="r"><code>institution &lt;- stringr::str_extract_all(
   publications_txt,
-  &quot;[YOUR REGULAR EXPRESSION HERE]&quot;
+  &quot;(University of [\\w]+)|([\\w]*Institute of [\\w]+)&quot;
   ) 
 institution &lt;- unlist(institution)
 as.data.frame(table(institution))</code></pre>
+<pre><code>##                      institution Freq
+## 1       Institute of Acupuncture    1
+## 2           Institute of Applied    1
+## 3         Institute of Arthritis    1
+## 4            Institute of Better    1
+## 5        Institute of Biomedical    5
+## 6        Institute of Biophysics    4
+## 7     Institute of Biostatistics    1
+## 8          Institute of Business    1
+## 9            Institute of Cancer    2
+## 10         Institute of Clinical    2
+## 11         Institute of Critical    1
+## 12         Institute of Diabetes    1
+## 13        Institute of Engineers    1
+## 14           Institute of Gender    1
+## 15          Institute of General    1
+## 16         Institute of Genetics    2
+## 17        Institute of Geography    1
+## 18           Institute of Global    2
+## 19           Institute of Health  119
+## 20           Institute of Higher    1
+## 21            Institute of Human    1
+## 22        Institute of Intensive   10
+## 23    Institute of International    1
+## 24            Institute of Labor    1
+## 25             Institute of Life    1
+## 26         Institute of Manitoba    1
+## 27          Institute of Medical   27
+## 28         Institute of Medicine    3
+## 29           Institute of Mental    3
+## 30          Institute of Network    1
+## 31     Institute of Neurobiology    1
+## 32     Institute of Neurological    1
+## 33  Institute of Neuropsychiatry    1
+## 34     Institute of Neuroscience    1
+## 35         Institute of Oncology    1
+## 36       Institute of Psychiatry    1
+## 37       Institute of Psychology    4
+## 38         Institute of Regional    3
+## 39          Institute of Science    4
+## 40           Institute of Social    1
+## 41               Institute of St    4
+## 42       Institute of Technology    5
+## 43              Institute of the    5
+## 44      Institute of Traditional    2
+## 45         Institute of Training    1
+## 46        University of Aberdeen    1
+## 47        University of Adelaide    2
+## 48         University of alberta    1
+## 49         University of Alberta   65
+## 50       University of Amsterdam    2
+## 51       University of Antioquia    1
+## 52         University of Applied    1
+## 53         University of Arizona    4
+## 54        University of Auckland    7
+## 55       University of Barcelona    2
+## 56            University of Bari    5
+## 57           University of Basel    2
+## 58          University of Beirut    1
+## 59        University of Belgrade    3
+## 60          University of Bergen    3
+## 61          University of Berlin    2
+## 62            University of Bern    2
+## 63      University of Birmingham    3
+## 64            University of Bonn    1
+## 65         University of Brescia   18
+## 66         University of Bristol    1
+## 67         University of British  119
+## 68         University of Calgary   57
+## 69      University of California   12
+## 70       University of Cambridge    5
+## 71        University of Campinas    1
+## 72            University of Cape    1
+## 73       University of Cartagena    1
+## 74         University of Chicago    2
+## 75         University of Cologne    4
+## 76        University of Colorado    1
+## 77     University of Connecticut    5
+## 78      University of Copenhagen    1
+## 79            University of Doha    3
+## 80         University of Eastern    2
+## 81          University of Exeter    1
+## 82         University of Florida    1
+## 83          University of Foggia    2
+## 84          University of Gdansk    1
+## 85          University of Geneva    2
+## 86         University of Glasgow   13
+## 87         University of Granada    3
+## 88       University of Groningen    1
+## 89          University of Guelph    9
+## 90           University of Halle    1
+## 91          University of Hawaii    1
+## 92          University of Health    1
+## 93        University of Helsinki    3
+## 94   University of Hertfordshire    1
+## 95            University of Hong   16
+## 96        University of Illinois    6
+## 97          University of Kansas    4
+## 98            University of Kent    2
+## 99         University of Koblenz    2
+## 100           University of Kyiv    2
+## 101              University of L    1
+## 102          University of Leeds    2
+## 103         University of Lisbon    1
+## 104      University of Liverpool    1
+## 105      University of Ljubljana    1
+## 106         University of London    1
+## 107       University of Manitoba   23
+## 108       University of Mannheim    1
+## 109       University of Maryland    1
+## 110        University of Mashhad    2
+## 111        University of Medical   22
+## 112       University of Medicine    2
+## 113      University of Melbourne    4
+## 114        University of Messina    2
+## 115         University of Mexico    1
+## 116       University of Michigan    7
+## 117          University of Milan    1
+## 118         University of Milano    5
+## 119        University of Mineiro    1
+## 120         University of Modena    1
+## 121    University of Montpellier    1
+## 122       University of Montreal    6
+## 123       University of Montréal    5
+## 124         University of Mostar    1
+## 125        University of Navarra    1
+## 126          University of Negev    1
+## 127            University of New    4
+## 128      University of Newcastle    1
+## 129   University of Newfoundland    2
+## 130        University of Nigeria    1
+## 131          University of North    4
+## 132       University of Northern    1
+## 133         University of Norway    1
+## 134          University of Notre    1
+## 135     University of Nottingham    2
+## 136         University of Oregon    2
+## 137           University of Oslo    1
+## 138         University of Ottawa   59
+## 139         University of Oxford   14
+## 140          University of Padua    1
+## 141        University of Paraiba   13
+## 142        University of Pelotas    3
+## 143   University of Pennsylvania   13
+## 144     University of Pittsburgh   12
+## 145       University of Plymouth    1
+## 146       University of Pretoria    1
+## 147         University of Public    1
+## 148         University of Punjab    1
+## 149     University of Queensland    6
+## 150         University of Regina    2
+## 151            University of Rio    6
+## 152      University of Rochester    1
+## 153           University of Rome    7
+## 154            University of São    1
+## 155   University of Saskatchewan    5
+## 156        University of Seville    4
+## 157     University of Sherbrooke    1
+## 158      University of Singapore    5
+## 159          University of South    3
+## 160       University of Southern    7
+## 161         University of Sydney   46
+## 162         University of Tehran    1
+## 163          University of Texas    3
+## 164            University of the    2
+## 165      University of Timisoara    3
+## 166        University of Toronto  854
+## 167         University of Trento    1
+## 168           University of Utah    4
+## 169         University of Verona    1
+## 170       University of Victoria   14
+## 171         University of Vienna    3
+## 172       University of Virginia    1
+## 173        University of Waikato    1
+## 174         University of Warsaw    2
+## 175     University of Washington    7
+## 176       University of Waterloo   15
+## 177        University of Western   16
+## 178        University of Windsor    1
+## 179      University of Wisconsin    1
+## 180  University of Witwatersrand    1
+## 181      University of Wuppertal    2
+## 182           University of York    2
+## 183         University of Zurich    5</code></pre>
 <p>Repeat the exercise and this time focus on schools and departments in
 the form of</p>
 <ol style="list-style-type: decimal">
@@ -496,11 +681,673 @@ the form of</p>
 <li>Department of …</li>
 </ol>
 <p>And tabulate the results</p>
-<pre class="r"><code>schools_and_deps &lt;- str_extract_all(
-  abstracts_txt,
-  &quot;[YOUR REGULAR EXPRESSION HERE]&quot;
+<pre class="r"><code>schools_and_deps &lt;- stringr::str_extract_all(
+  publications_txt,
+  &quot;(School of \\w+)|(Department of [\\w\\s]+)&quot;
   )
 as.data.frame(table(schools_and_deps))</code></pre>
+<pre><code>##                                                                                                                             schools_and_deps
+## 1                                                                                                        Department of Academic Primary Care
+## 2                                                                                          Department of Agricultural and Resource Economics
+## 3                                                                                                                 Department of Agriculture 
+## 4                                                                                                                  Department of Anaesthesia
+## 5                                                                                       Department of Anaesthesia and Critical Care Medicine
+## 6                                                                                   Department of Anaesthesiology and Critical Care Medicine
+## 7                                                                                           Department of Anaesthesiology and Intensive Care
+## 8                                                                                                                      Department of Anatomy
+## 9                                                                                                                   Department of Anesthesia
+## 10                                                                                              Department of Anesthesia and Pain Management
+## 11                                                                                                Department of Anesthesia and Pain Medicine
+## 12                                                                                                              Department of Anesthesiology
+## 13                                                                                            Department of Anesthesiology and Critical Care
+## 14                                                                                            Department of Anesthesiology and Pain Medicine
+## 15                                                                                                                Department of Anthropology
+## 16                                                                                                         Department of Applied Mathematics
+## 17                                                                                    Department of Applied Psychology and Human Development
+## 18                                                                                                                Department of Biochemistry
+## 19                                                                                                               Department of Biochemistry 
+## 20                                                                                        Department of Biochemistry and Biomedical Sciences
+## 21                                                                                          Department of Biochemistry and Molecular Biology
+## 22                                                                                                                   Department of Bioethics
+## 23                                                                                          Department of Biological and Biomedical Sciences
+## 24                                                                                           Department of Biological and Medical Psychology
+## 25                                                                                                                     Department of Biology
+## 26                                                                                                                  Department of Biomedical
+## 27                                                                                                                 Department of Biomedical 
+## 28                                                                                            Department of Biomedical and Clinical Sciences
+## 29                                                                                                      Department of Biomedical Engineering
+## 30                                                                                                      Department of Biomedical Informatics
+## 31                                                                                                         Department of Biomedical Sciences
+## 32                                                                                                               Department of Biostatistics
+## 33                                                                                                               Department of Biotechnology
+## 34                                                                                                     Department of Cancer Control Research
+## 35                                                                                     Department of Cancer Epidemiology and Clinical Trials
+## 36                                                                                                                  Department of Cardiology
+## 37                                                                                                     Department of Cardiovascular Medicine
+## 38                                                                                                                       Department of Cell 
+## 39                                                                                                                   Department of Chemistry
+## 40                                                                                                                    Department of Children
+## 41                                                                                                                    Department of Clinical
+## 42                                                                                          Department of Clinical and Experimental Medicine
+## 43                                                                                          Department of Clinical and Experimental Sciences
+## 44                                                                                          Department of Clinical and Organizational Ethics
+## 45                                                                                                         Department of Clinical Laboratory
+## 46                                                                                                Department of Clinical Laboratory Medicine
+## 47                                                                                                       Department of Clinical Neuroscience
+## 48                                                                                                      Department of Clinical Neurosciences
+## 49                                                                                                           Department of Clinical Oncology
+## 50                                                                                                          Department of Clinical Radiology
+## 51                                                                                                           Department of Clinical Research
+## 52                                                                                           Department of Clinical Research and Development
+## 53                                                                                                            Department of Clinical Science
+## 54                                                                                                                   Department of Cognition
+## 55                                                                                                          Department of Cognitive Sciences
+## 56                                                                                                           Department of Community Health 
+## 57                                                                                                   Department of Community Health Sciences
+## 58                                                                                                  Department of Community Health Sciences 
+## 59                                                                                                          Department of Community Medicine
+## 60                                                                                                       Department of Community Oral Health
+## 61                                                                                                            Department of Computer Science
+## 62                                                                                              Department of Continuity of Care and Frailty
+## 63                                                                                                                Department of Criminal Law
+## 64                                                                                                                Department of Criminology 
+## 65                                                                                                               Department of Critical Care
+## 66                                                                                             Department of Critical Care and Lane Fox Unit
+## 67                                                                                                      Department of Critical Care Medicine
+## 68                                                                                                Department of Critical Care Medicine and O
+## 69                                                                                                                    Department of Defence 
+## 70                                                                                                                 Department of Dermatology
+## 71                                                                                    Department of Developmental and Educational Psychology
+## 72                                                                                                          Department of Diagnostic Imaging
+## 73                                                                                                        Department of Diagnostic Radiology
+## 74                                                                                                Department of Drug Design and Pharmacology
+## 75                                                                                             Department of Dynamic and Clinical Psychology
+## 76                                                                                                       Department of Economics and Finance
+## 77                                                                                                                   Department of Education
+## 78                                                                                                                  Department of Electrical
+## 79                                                                                                      Department of Electrical Engineering
+## 80                                                                                 Department of Electrical Engineering and Computer Science
+## 81                                                                                                                   Department of Emergency
+## 82                                                                                                Department of Emergency and Intensive Care
+## 83                                                                                                          Department of Emergency Medicine
+## 84                                                                                       Department of Environmental and Occupational Health
+## 85                                                                                                      Department of Environmental Medicine
+## 86                                                                                                                Department of Epidemiology
+## 87                                                                                                               Department of Epidemiology 
+## 88                                                                                              Department of Epidemiology and Biostatistics
+## 89                                                                                              Department of Epidemiology and Global Health
+## 90                                                                                        Department of Epidemiology and Preventive Medicine
+## 91                                                                                                       Department of Epidemiology Research
+## 92                                                                                         Department of Experimental and Applied Psychology
+## 93                                                                                                     Department of Experimental Psychology
+## 94                                                                                                                     Department of Family 
+## 95                                                                                               Department of Family and Community Medicine
+## 96                                                                                          Department of Family and Community Medicine 2019
+## 97                                                        Department of Family and Community Medicine and Dalla Lana School of Public Health
+## 98                                                                                               Department of Family and Emergency Medicine
+## 99                                                                                                             Department of Family Medicine
+## 100                                                                                     Department of Family Medicine and Emergency Medicine
+## 101                                                                                           Department of Family Medicine and Primary Care
+## 102                                                                                                            Department of Family Practice
+## 103                                                                                             Department of Family Studies and Gerontology
+## 104                                                                                                                    Department of General
+## 105                                                                                                  Department of Geography and Environment
+## 106                                                                                                     Department of Geography and Planning
+## 107                                                                                                                 Department of Geriatrics
+## 108                                                                                                              Department of Global Health
+## 109                                                                                          Department of Global Health and Social Medicine
+## 110                                                                                                   Department of Global Health Governance
+## 111                                                                                      Department of Global Public Health and Primary Care
+## 112                                                                                                                 Department of Government
+## 113                                                                                                                 Department of Gynecology
+## 114                                                                                                                     Department of Health
+## 115                                                                                                                    Department of Health 
+## 116                                                                   Department of Health and aged care  Clinical recommendations for COVID
+## 117                                                                                                  Department of Health and Human Services
+## 118                                                                                                 Department of Health and Human Services 
+## 119                            Department of Health and Human Services Food and Drug Administration Center for Drug Evaluation and Research 
+## 120                                                                                                         Department of Health and Society
+## 121                                                                                                          Department of Health Management
+## 122                                                                                                    Department of Health Metrics Sciences
+## 123                                                                                               Department of Health Policy and Management
+## 124                                                                                      Department of Health Policy Planning and Management
+## 125                                                                     Department of Health Promotion Chronic Disease and Injury Prevention
+## 126                                                                                                  Department of Health Promotion Sciences
+## 127                                                                                                    Department of Health Research Methods
+## 128                                                                                                            Department of Health Sciences
+## 129                                                                                                            Department of Health Security
+## 130                                                                                        Department of Health Services Research and Policy
+## 131                                                                                                      Department of Healthcare Management
+## 132                                                                                                        Department of Heath and Aged Care
+## 133                                                      Department of Homeland Security and a senior advisor to the Boston Consulting Group
+## 134                                                                                   Department of Human Development and Applied Psychology
+## 135                                                                                                                 Department of Humanities
+## 136                                                                                             Department of Humanities and Social Sciences
+## 137                                                                                                                 Department of Immunology
+## 138                                                                                                                Department of Immunology 
+## 139                                                                                         Department of Immunology and Infectious Diseases
+## 140                                                                                Department of Immunology and Institute of Medical Science
+## 141                                                                                                        Department of Infectious Diseases
+## 142                                                                                                   Department of Information Technologies
+## 143                                                                                                 Department of Integrated Health Services
+## 144                                                                                                          Department of Internal Medicine
+## 145                                                                                          Department of Internal Medicine and Paediatrics
+## 146                                                                                                       Department of International Health
+## 147                                                                                                      Department of International Studies
+## 148                                                                                                                    Department of Justice
+## 149                                                                                                                Department of Kinesiology
+## 150                                                                                                        Department of Laboratory Medicine
+## 151                                                                                       Department of Laboratory Medicine and Pathobiology
+## 152                                                                                                                       Department of Life
+## 153                                                                                                                Department of Mathematics
+## 154                                                                                                 Department of Mathematics and Statistics
+## 155                                                                                           Department of Medical and Surgical Specialties
+## 156                                                                                                         Department of Medical Biophysics
+## 157                                                                                                          Department of Medical Education
+## 158                                                                                     Department of Medical Ethics and History of Medicine
+## 159                                                                                                            Department of Medical Imaging
+## 160                                                                                                        Department of Medical Informatics
+## 161                                                                               Department of Medical Microbiology and Infectious Diseases
+## 162                                                                                                           Department of Medical Research
+## 163                                                                                                           Department of Medical Sciences
+## 164                                                                                                                   Department of Medicine
+## 165                                                                                                                  Department of Medicine 
+## 166                                                                                        Department of Medicine and Clinical Epidemiology 
+## 167                                                          Department of Medicine and Interdepartmental Division of Critical Care Medicine
+## 168                                                                           Department of Medicine and Joint Department of Medical Imaging
+## 169                                                                                                    Department of Medicine and Physiology
+## 170                                                                                                       Department of Medicine and Surgery
+## 171                                                                                                                 Department of Medicine B
+## 172                                                                                                              Department of Mental Health
+## 173                                                                                                               Department of Microbiology
+## 174                                                                                                Department of Microbiology and Immunology
+## 175                                                                                        Department of Microbiology and Tumor Cell Biology
+## 176                                                                                                 Department of Molecular and Cell Biology
+## 177                                                                                       Department of Molecular and Translational Medicine
+## 178                                                                                                         Department of Molecular Genetics
+## 179                                                                             Department of National Defence and the Canadian Armed Forces
+## 180                                                                                                                 Department of Nephrology
+## 181                                                                                                Department of Nephrology and Hypertension
+## 182                                                                                 Department of Neuroimmunology and Neuromuscular Diseases
+## 183                                                                                                                  Department of Neurology
+## 184                                                                               Department of Neurology and Neuromuscular Reference Center
+## 185                                                                                     Department of Neuropsychiatry and Behavioral Science
+## 186                                                                                                               Department of Neuroscience
+## 187                                                                                                               Department of Neurosurgery
+## 188                                                                                                                        Department of Non
+## 189                                                                                                      Department of Nursing and Midwifery
+## 190                                                                                                                  Department of Nutrition
+## 191                                                                                                       Department of Nutritional Sciences
+## 192                                                                                                                Department of Obstetrics 
+## 193                                                                                                 Department of Obstetrics and Gynaecology
+## 194                                                                                                  Department of Obstetrics and Gynecology
+## 195                                                                                  Department of Obstetrics and Reproductive Endocrinology
+## 196                                                                                                      Department of Occupational Science 
+## 197                                                                              Department of Occupational Science and Occupational Therapy
+## 198                                                                                                       Department of Occupational Therapy
+## 199                                                                                                                   Department of Oncology
+## 200                                                                          Department of Oncology and Department of Public Health Sciences
+## 201                                                                                                                  Department of Optometry
+## 202                                                                                                               Department of Orthopaedics
+## 203                                                                                                             Department of Otolaryngology
+## 204                                                                                                        Department of Otorhinolaryngology
+## 205                                                                                             Department of Paediatric Laboratory Medicine
+## 206                                                                                                                Department of Paediatrics
+## 207                                                                                                               Department of Paediatrics 
+## 208                                                                                        Department of Paediatrics and Adolescent Medicine
+## 209                                                                                               Department of Paediatrics and Child Health
+## 210                                                                                                        Department of Palliative Medicine
+## 211                                                                                                               Department of Paramedicine
+## 212                                                                                                                  Department of Pathology
+## 213                                                                                          Department of Pathology and Laboratory Medicine
+## 214                                                                                           Department of Pathology and Molecular Medicine
+## 215                                                                                               Department of Pediatric Emergency Medicine
+## 216                                                                                               Department of Pediatric Orthopedic Surgery
+## 217                                                                                                                 Department of Pediatrics
+## 218                                                                                                Department of Pediatrics and Child Health
+## 219                                                                                          Department of Pediatrics and Emergency Medicine
+## 220                                                                                                               Department of Periodontics
+## 221                                                                                                 Department of Pharmaceutical Biosciences
+## 222                                                                                                               Department of Pharmacology
+## 223                                                                                                              Department of Pharmacology 
+## 224                                                                                                  Department of Pharmacology and Pharmacy
+## 225                                                                                                Department of Pharmacology and Toxicology
+## 226                                                                                                          Department of Pharmacy Services
+## 227                                                                                                                 Department of Philosophy
+## 228                                                                                       Department of Physical Medicine and Rehabilitation
+## 229                                                                                                           Department of Physical Therapy
+## 230                                                                                Department of Physical Therapy and Rehabilitation Science
+## 231                                                                                                                    Department of Physics
+## 232                                                                                                Department of Physiology and Pharmacology
+## 233                                                                       Department of Physiotherapy Podiatry and Prosthetics and Orthotics
+## 234                                                                                                          Department of Political Economy
+## 235                                                                                                          Department of Political Science
+## 236                                                                                                                  Department of Politics 
+## 237                                                                                                                 Department of Population
+## 238                                                                                                        Department of Population Medicine
+## 239                                                                                                        Department of Preventive Medicine
+## 240                                                                                   Department of Preventive Medicine and Community Health
+## 241                                                                                      Department of Preventive Medicine and Public Health
+## 242                                                                                                        Department of Preventive Oncology
+## 243                                                                                                 Department of Primary and Community Care
+## 244                                                                                          Department of Propedeutics of Internal Medicine
+## 245                                                                                                                 Department of Psychiatry
+## 246                                                                                                                Department of Psychiatry 
+## 247                                                                                    Department of Psychiatry and Behavioral Neurosciences
+## 248                                                                                   Department of Psychiatry and Behavioural Neurosciences
+## 249 Department of Psychiatry and Behavioural Neurosciences at McMaster University and a psychiatrist at Hamilton Health Sciences in Hamilton
+## 250                                                                                                             Department of Psychiatry USA
+## 251                                                                                      Department of Psychological and Behavioural Science
+## 252                                                                                             Department of Psychological Clinical Science
+## 253                                                                                                     Department of Psychological Medicine
+## 254                                                                                                                 Department of Psychology
+## 255                                                                                                                Department of Psychology 
+## 256                                                                                         Department of Psychology and Behavioural Science
+## 257                                                                                  Department of Psychosocial Oncology and Palliative Care
+## 258                                                                                                              Department of Public Health
+## 259                                                                                                     Department of Public Health Sciences
+## 260                                                                                                             Department of Public Welfare
+## 261                                                                                                         Department of Radiation Oncology
+## 262                                                                                                                  Department of Radiology
+## 263                                                                                              Department of Radiology McMaster University
+## 264                                                                                                             Department of Rehabilitation
+## 265                                                                                                      Department of Reproductive Medicine
+## 266                                                                                                                   Department of Research
+## 267                                                                                                    Department of Research and Evaluation
+## 268                                                                                                   Department of Research and Publication
+## 269                                                                                          Department of Research Design and Biostatistics
+## 270                                                                                                       Department of Respiratory Medicine
+## 271                                                                                                               Department of Rheumatology
+## 272                                                                                                Department of Service Delivery and Safety
+## 273                                                                                               Department of Social and Behavioral Health
+## 274                                                                                              Department of Social and Political Sciences
+## 275                                                                                             Department of Social and Preventive Medicine
+## 276                                                                                               Department of Social Policy and Evaluation
+## 277                                                                                                                Department of Social Work
+## 278                                                                                                                  Department of Sociology
+## 279                                                                                                                  Department of Somnology
+## 280                                                                                            Department of South and Central Asian Studies
+## 281                                                                                                              Department of Spine Surgery
+## 282                                                                                                                 Department of Statistics
+## 283                                                                                                            Department of Supportive Care
+## 284                                                                                                                    Department of Surgery
+## 285                                                                                                           Department of Systems Medicine
+## 286                                                                                                                 Department of Toxicology
+## 287                                                                                                     Department of Translational Medicine
+## 288                                                                                                          Department of Veterans Affairs 
+## 289                                                                                                    Department of Veterinary Microbiology
+## 290                                                                                                                         School of Allied
+## 291                                                                                                                          School of Basic
+## 292                                                                                                                   School of Biodiversity
+## 293                                                                                                                     School of Biomedical
+## 294                                                                                                                       School of Business
+## 295                                                                                                                         School of Cancer
+## 296                                                                                                                 School of Cardiovascular
+## 297                                                                                                                       School of Clinical
+## 298                                                                                                                        School of Coimbra
+## 299                                                                                                                      School of Community
+## 300                                                                                                                           School of Data
+## 301                                                                                                                      School of Dentistry
+## 302                                                                                                                      School of Economics
+## 303                                                                                                                    School of Educational
+## 304                                                                                                                    School of Engineering
+## 305                                                                                                                   School of Epidemiology
+## 306                                                                                                                      School of Geography
+## 307                                                                                                                         School of Global
+## 308                                                                                                                       School of Graduate
+## 309                                                                                                                         School of Health
+## 310                                                                                                                        School of Hygiene
+## 311                                                                                                                  School of International
+## 312                                                                                                                     School of Journalism
+## 313                                                                                                                    School of Kinesiology
+## 314                                                                                                                           School of Life
+## 315                                                                                                                     School of Management
+## 316                                                                                                                       School of Medicine
+## 317                                                                                                                      School of Molecular
+## 318                                                                                                                        School of Nursing
+## 319                                                                                                                   School of Occupational
+## 320                                                                                                                       School of Pharmacy
+## 321                                                                                                                       School of Physical
+## 322                                                                                                                  School of Physiotherapy
+## 323                                                                                                                     School of Population
+## 324                                                                                                                        School of Primary
+## 325                                                                                                                     School of Psychiatry
+## 326                                                                                                                     School of Psychology
+## 327                                                                                                                         School of Public
+## 328                                                                                                                 School of Rehabilitation
+## 329                                                                                                                         School of Social
+## 330                                                                                                                            School of the
+##     Freq
+## 1      1
+## 2      1
+## 3      1
+## 4      1
+## 5      1
+## 6      1
+## 7      1
+## 8      1
+## 9      6
+## 10     3
+## 11     8
+## 12     1
+## 13     3
+## 14     4
+## 15     1
+## 16     1
+## 17     2
+## 18     1
+## 19    10
+## 20     1
+## 21     2
+## 22     1
+## 23     3
+## 24     1
+## 25     8
+## 26     1
+## 27     1
+## 28     1
+## 29     1
+## 30     1
+## 31     2
+## 32     8
+## 33     2
+## 34     2
+## 35     1
+## 36     2
+## 37     1
+## 38     3
+## 39     1
+## 40     1
+## 41     1
+## 42     2
+## 43     8
+## 44     1
+## 45     1
+## 46     1
+## 47     1
+## 48     3
+## 49     1
+## 50     1
+## 51     2
+## 52     6
+## 53     1
+## 54     1
+## 55     1
+## 56     2
+## 57     6
+## 58    11
+## 59     1
+## 60     1
+## 61     6
+## 62     1
+## 63     1
+## 64     1
+## 65     3
+## 66     1
+## 67    24
+## 68     1
+## 69     1
+## 70    20
+## 71     1
+## 72     1
+## 73     5
+## 74     1
+## 75     2
+## 76     1
+## 77     8
+## 78     2
+## 79     1
+## 80     1
+## 81     2
+## 82     2
+## 83    35
+## 84     2
+## 85     1
+## 86     6
+## 87     5
+## 88    13
+## 89     1
+## 90     1
+## 91     2
+## 92     1
+## 93     6
+## 94     3
+## 95    66
+## 96     1
+## 97     1
+## 98     1
+## 99    36
+## 100    3
+## 101    1
+## 102    1
+## 103    1
+## 104    1
+## 105    2
+## 106    1
+## 107    2
+## 108    3
+## 109    1
+## 110    1
+## 111    2
+## 112    1
+## 113    1
+## 114   11
+## 115    1
+## 116    1
+## 117    6
+## 118    1
+## 119    1
+## 120    2
+## 121    1
+## 122    1
+## 123    2
+## 124    2
+## 125    6
+## 126    1
+## 127   31
+## 128    6
+## 129    1
+## 130    1
+## 131    1
+## 132    1
+## 133    1
+## 134    2
+## 135    1
+## 136    1
+## 137    9
+## 138   10
+## 139    1
+## 140    1
+## 141    2
+## 142    1
+## 143    1
+## 144   18
+## 145    1
+## 146    2
+## 147    1
+## 148    1
+## 149    3
+## 150    1
+## 151    8
+## 152    1
+## 153    3
+## 154    7
+## 155    9
+## 156    2
+## 157    2
+## 158    2
+## 159    5
+## 160    4
+## 161    1
+## 162    1
+## 163    2
+## 164  161
+## 165    2
+## 166    1
+## 167    1
+## 168    4
+## 169    1
+## 170    3
+## 171    1
+## 172    1
+## 173    7
+## 174    4
+## 175    1
+## 176    1
+## 177    1
+## 178   11
+## 179    4
+## 180    5
+## 181    4
+## 182    1
+## 183   28
+## 184    1
+## 185    1
+## 186    2
+## 187    3
+## 188    1
+## 189    2
+## 190    1
+## 191   11
+## 192   13
+## 193    1
+## 194   16
+## 195    1
+## 196    2
+## 197    5
+## 198    2
+## 199    8
+## 200    1
+## 201    1
+## 202    5
+## 203    2
+## 204    1
+## 205    2
+## 206   75
+## 207   21
+## 208    1
+## 209    1
+## 210    1
+## 211    1
+## 212    1
+## 213   43
+## 214    3
+## 215    1
+## 216    4
+## 217   78
+## 218    1
+## 219    1
+## 220    2
+## 221    2
+## 222    3
+## 223    3
+## 224    1
+## 225    8
+## 226    1
+## 227    2
+## 228    1
+## 229   20
+## 230    1
+## 231    1
+## 232    2
+## 233    3
+## 234    3
+## 235    4
+## 236    1
+## 237    1
+## 238    6
+## 239    1
+## 240    1
+## 241    1
+## 242    3
+## 243    1
+## 244    1
+## 245  150
+## 246    1
+## 247    2
+## 248    4
+## 249    1
+## 250    1
+## 251    1
+## 252    2
+## 253    2
+## 254   53
+## 255    2
+## 256    1
+## 257    1
+## 258    6
+## 259    2
+## 260    1
+## 261   20
+## 262    2
+## 263    1
+## 264    1
+## 265    1
+## 266    4
+## 267    1
+## 268    1
+## 269    1
+## 270    1
+## 271    1
+## 272    1
+## 273    2
+## 274    1
+## 275    2
+## 276    1
+## 277    1
+## 278    4
+## 279    1
+## 280    1
+## 281    4
+## 282    3
+## 283    6
+## 284   20
+## 285    4
+## 286    1
+## 287    1
+## 288    1
+## 289    1
+## 290   12
+## 291   10
+## 292    6
+## 293    1
+## 294    5
+## 295    2
+## 296    2
+## 297   12
+## 298    1
+## 299    1
+## 300    1
+## 301    6
+## 302    9
+## 303    2
+## 304    5
+## 305   11
+## 306    2
+## 307    6
+## 308    1
+## 309   21
+## 310    8
+## 311    1
+## 312    1
+## 313    2
+## 314   11
+## 315    6
+## 316  143
+## 317    1
+## 318   17
+## 319    8
+## 320    1
+## 321    5
+## 322    1
+## 323   24
+## 324    2
+## 325    1
+## 326    5
+## 327  167
+## 328   14
+## 329    8
+## 330    2</code></pre>
 </div>
 <div id="question-5-form-a-database" class="section level2">
 <h2>Question 5: Form a database</h2>
