@@ -1,0 +1,382 @@
+---
+title: "Lab 05 - Data Wrangling"
+output: 
+  github_document: default
+  tufte::tufte_html:
+    css: style.css
+link-citations: yes
+---
+
+# Learning goals
+
+- Use the `merge()` function to join two datasets.
+- Deal with missings and impute data.
+- Identify relevant observations using `quantile()`.
+- Practice your GitHub skills.
+
+# Lab description
+
+For this lab we will be dealing with the meteorological dataset `met`. In this case, we will use `data.table` to answer some questions regarding the `met` dataset, while at the same time practice your Git+GitHub skills for this project.
+
+This markdown document should be rendered using `github_document` document.
+
+# Part 1: Setup a Git project and the GitHub repository
+
+1. Go to wherever you are planning to store the data on your computer, and create a folder for this project
+
+2. In that folder, save [this template](https://github.com/JSC370/JSC370-2024/blob/main/labs/lab05/lab05-wrangling-gam.Rmd) as "README.Rmd". This will be the markdown file where all the magic will happen.
+
+3. Go to your GitHub account and create a new repository of the same name that your local folder has, e.g., "JSC370-labs".
+
+4. Initialize the Git project, add the "README.Rmd" file, and make your first commit.
+
+5. Add the repo you just created on GitHub.com to the list of remotes, and push your commit to origin while setting the upstream.
+
+Most of the steps can be done using command line:
+
+```sh
+# Step 1
+cd ~/Documents
+mkdir JSC370-labs
+cd JSC370-labs
+
+# Step 2
+wget https://raw.githubusercontent.com/JSC370/JSC370-2024/main/labs/lab05/lab05-wrangling-gam.Rmd
+mv lab05-wrangling-gam.Rmd README.Rmd
+# if wget is not available,
+curl https://raw.githubusercontent.com/JSC370/JSC370-2024/main/labs/lab05/lab05-wrangling-gam.Rmd --output README.Rmd
+
+# Step 3
+# Happens on github
+
+# Step 4
+git init
+git add README.Rmd
+git commit -m "First commit"
+
+# Step 5
+git remote add origin git@github.com:[username]/JSC370-labs
+git push -u origin master
+```
+
+You can also complete the steps in R (replace with your paths/username when needed)
+
+```r
+# Step 1
+setwd("~/Documents")
+dir.create("JSC370-labs")
+setwd("JSC370-labs")
+
+# Step 2
+download.file(
+  "https://raw.githubusercontent.com/JSC370/JSC370-2024/main/labs/lab05/lab05-wrangling-gam.Rmd",
+  destfile = "README.Rmd"
+  )
+
+# Step 3: Happens on Github
+
+# Step 4
+system("git init && git add README.Rmd")
+system('git commit -m "First commit"')
+
+# Step 5
+system("git remote add origin git@github.com:[username]/JSC370-labs")
+system("git push -u origin master")
+```
+
+Once you are done setting up the project, you can now start working with the MET data.
+
+## Setup in R
+
+1. Load the `data.table` (and the `dtplyr` and `dplyr` packages), `mgcv`, `ggplot2`, `leaflet`, `kableExtra`.
+
+```{r "packages warnings=FALSE"}
+library(data.table)
+library(dtplyr)
+library(dplyr)
+library(mgcv)
+library(ggplot2)
+library(leaflet)
+library(kableExtra)
+```
+
+
+```{r}
+fn <- "https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz"
+if (!file.exists("met_all_2023.gz"))
+  download.file(fn, destfile = "met_all_2023.gz")
+met <- data.table::fread("met_all_2023.gz")
+```
+
+2. Load the met data from https://github.com/JSC370/JSC370-2024/main/data/met_all_2023.gz or  (Use https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz to download programmatically), and also the station data. For the latter, you can use the code we used during lecture to pre-process the stations data:
+
+```{r stations-data}
+# Download the data
+stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations[, USAF := as.integer(USAF)]
+
+# Dealing with NAs and 999999
+stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
+stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
+stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE, LAT, LON)])
+
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
+
+# Removing duplicates
+stations[, n := 1:.N, by = .(USAF)]
+stations <- stations[n == 1,][, n := NULL]
+
+# Read in the met data and fix lat, lon, temp
+# Read in the met data and fix lat, lon, temp
+met$lat <- met$lat/1000
+met$lon <- met$lon/1000
+met$wind.sp <- met$wind.sp/10
+met$temp <- met$temp/10
+met$dew.point <- met$dew.point/10
+met$atm.press <- met$atm.press/10
+```
+
+3. Merge the data as we did during the lecture. Use the `merge()` code and you can also try the tidy way with `left_join()`
+
+```{r}
+
+met_dt <- merge(
+  # Data
+  x     = met,      
+  y     = stations, 
+  # List of variables to match
+  by.x  = "USAFID",
+  by.y  = "USAF", 
+  # Which obs to keep?
+  all.x = TRUE,      
+  all.y = FALSE
+)
+
+```
+
+## Question 1: Identifying Representative Stations
+
+Across all weather stations, which stations have the median values of temperature, wind speed, and atmospheric pressure? Using the `quantile()` function, identify these three stations. Do they coincide?
+
+```{r}
+
+med_temp <- quantile(met_dt$temp, 0.5, na.rm = TRUE)
+med_ws <- quantile(met_dt$wind.sp, 0.5, na.rm = TRUE)
+med_atp <- quantile(met_dt$atm.press, 0.5, na.rm = TRUE)
+
+med_temp
+med_atp
+med_ws
+
+```
+
+Next identify the stations have these median values.
+
+```{r}
+
+med_met <- met_dt[, .(
+  temp = median(temp, na.rm = TRUE),
+  atm.press = median(atm.press, na.rm = TRUE),
+  wind.sp = median(wind.sp, na.rm = TRUE)
+), by = c("USAFID", "STATE")]
+
+
+med_met[, temp_d:= abs(temp-med_temp)]
+med_temp_stat <- med_met[temp_d==0]
+
+med_met[, ws_d:= abs(wind.sp-med_ws)]
+med_ws_stat <- med_met[ws_d==0]
+
+med_met[, atp_d:= abs(atm.press-med_atp)]
+med_atp_stat <- med_met[atp_d==0]
+
+print("The stations that attain the median temperature are:")
+unique(med_temp_stat)
+print("The stations that attain the median atm pressure are:")
+unique(med_atp_stat)
+print("The stations that attain the median wind speed are:")
+unique(med_ws_stat)
+
+all_measures <- med_met[temp_d== 0 & ws_d==0 & atp_d==0]
+print("The stations that coincide at all three are:")
+unique(all_measures)
+
+```
+
+As as can see above, the values all coincide for the station with USAFID: 723119. 
+
+
+Knit the document, commit your changes, and save it on GitHub. Don't forget to add `README.md` to the tree, the first time you render it.
+
+## Question 2: Identifying Representative Stations per State
+
+Now let's find the weather stations by state with closest temperature and wind speed based on the euclidean distance from these medians. 
+
+```{r}
+
+state_weather <- met_dt[, .(
+  state_temp = median(temp, na.rm = TRUE),
+  state_wind.sp = median(wind.sp, na.rm = TRUE)
+), by = c("STATE")]
+
+euclidean <- merge(state_weather, med_met, by = "STATE")
+euclidean[, distance:= sqrt((temp-state_temp)^2 + (wind.sp-state_wind.sp)^2)]
+euclidean <- euclidean[!is.na(distance)]
+state_reps <- euclidean[, .(min_distance = min(distance), USAFID = USAFID[which.min(distance)]), by = c("STATE")]
+state_reps[, .(STATE, USAFID)]
+```
+
+Knit the doc and save it on GitHub.
+
+## Question 3: In the Geographic Center?
+
+For each state, identify which station is closest to the geographic mid-point (median) of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all ~100 points in the same figure, applying different colors for the geographic median and the temperature and wind speed median.
+
+
+```{r}
+
+
+med_stat <- met_dt[, .(
+  mlon = median(lon, na.rm = TRUE),
+  mlat = median(lat, na.rm = TRUE)
+), by = c("STATE")]
+
+med_stat.info <- merge(met_dt[, c("USAFID", "STATE", "lat", "lon")], med_stat, by.x = "STATE", by.y = "STATE")
+med_stat.info[, mid_dist:=sqrt((lon-mlon)^2+(lat-mlat)^2)]
+med_stat <- med_stat.info[ , .SD[which.min(mid_dist)], by = c("STATE")]
+
+met_dt.filtered <- met_dt[met_dt$USAFID %in% med_stat$USAFID | met_dt$USAFID %in% state_reps$USAFID]
+met_dt.filtered$state_rep <- ifelse(met_dt.filtered$USAFID %in% state_reps$USAFID, 1, 0)
+met_dt.filtered$median_stat <- ifelse(met_dt.filtered$USAFID %in% med_stat$USAFID, 1, 0)
+
+met_dt.filtered <- met_dt.filtered[, .(
+  lon = mean(lon, na.rm = TRUE),
+  lat = mean(lat, na.rm = TRUE),
+  state_rep = first(state_rep),
+  median_stat = first(median_stat)
+), by = c("USAFID")]
+
+leaflet() %>%
+  addTiles() %>%
+  addCircles(data = met_dt.filtered, 
+                   lat = ~lat, 
+                   lng = ~lon, 
+                   radius = 5, 
+                   color = ~ifelse(state_rep == 1, "red", 
+                                   ifelse(median_stat == 1, "blue", "green")))
+
+```
+
+```{r}
+
+#install.packages("webshot")
+webshot::install_phantomjs()
+
+```
+Note that we display a still image of the map, since markdown cannot support showing the actual Leaflet map.
+
+Knit the doc and save it on GitHub.
+
+## Question 4: Summary Table with `kableExtra`
+
+Generate a summary table using `kable` where the rows are each state and the columns represent average temperature broken down by low, median, and high elevation stations. 
+
+Use the following breakdown for elevation:
+
+- Low: elev < 93
+- Mid: elev >= 93 and elev < 401
+- High: elev >= 401
+
+```{r}
+met_dt$elev.cat <- ifelse(met_dt$elev < 93, "low", ifelse(met_dt$elev >= 93 & met_dt$elev < 401, "mid", ifelse(met_dt$elev >= 401, "high", NA)))
+
+summary_table <- met_dt[, .(
+  avg_temp = mean(temp, na.rm = TRUE),
+  count = .N
+), by = c("STATE", "elev.cat")]
+
+kable(summary_table, format = "html", caption = "Avg Temperature by State and Elevation Category")
+
+```
+
+
+Knit the document, commit your changes, and push them to GitHub. 
+
+
+## Question 5: Advanced Regression
+
+Let's practice running regression models with smooth functions on X. We need the `mgcv` package and `gam()` function to do this.
+
+- using your data with the median values per station, first create a lazy table. Filter out values of atmospheric pressure outside of the range 1000 to 1020. Examine the association between temperature (y) and atmospheric pressure (x). Create a scatterplot of the two variables using ggplot2. Add both a linear regression line and a smooth line.
+
+- fit both a linear model and a spline model (use `gam()` with a cubic regression spline on wind speed). Summarize and plot the results from the models and interpret which model is the best fit and why.
+
+```{r}
+
+med_lazy <- lazy_dt(med_met, immutable = FALSE)
+med_lazy.filtered <- med_lazy |>
+  filter(atm.press >= 1000 & atm.press <= 1020) |>
+  collect()
+
+ggplot(med_lazy.filtered, aes(x=atm.press, y=temp)) + 
+  geom_point() + 
+  geom_smooth(method='lm', color = "red") + 
+  geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), color = "blue") +
+  labs(x="Atmospheric Pressure",
+       y="Temperature", 
+       title="Relationship of Atmospheric Pressure and Temperature") 
+
+
+```
+
+```{r}
+
+# Note: the wind speed is a typo. Should be atmosphere pressure in the model; see Piazza.
+lm.mod <- lm(temp ~ atm.press, data = med_lazy.filtered)
+summary(lm.mod)
+
+```
+```{r}
+
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Association between Atmospheric Pressure and Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") 
+
+```
+
+```{r}
+
+spline.mod <- gam(temp ~ s(atm.press, bs = "cr"), data = med_lazy.filtered)
+summary(spline.mod)
+```
+
+```{r, warning=FALSE}
+
+med_lazy.filtered$predicted <- predict(spline.mod, newdata = med_lazy.filtered)
+ggplot(med_lazy.filtered, aes(x = atm.press, y = temp)) +
+  geom_point() +
+  geom_line(aes(y = predicted), color = "blue", size = 1) +
+  labs(title = "Cubic Regression Spline Model - Atm. Pressure Against Temperature",
+       x = "Atmospheric Pressure",
+       y = "Temperature") +
+  theme_minimal()
+
+```
+
+We first make two observations. First, the adjusted $R^2$ value for the spline model is higher than that of the linear model: 0.297 against 0.2645 respectively. However, the difference is minimal. The second observation is that for the spline model, it appears that the curve is highly influenced by certain data points. See the tails, for example. In other words, a risk of this model is that it is capturing noise, instead of the actual trend. So, it is not out of the realm of possibility, that the line is highly overfitted to the data. 
+
+Given these two observations, we would probably choose the linear regression model purely because its $R^2$ is not that much smaller, and it does not appear to be overfitting to the data. 
+
+
+## Deliverables
+
+- .Rmd file (this file)
+
+- link to the .md file (with all outputs) in your GitHub repository
